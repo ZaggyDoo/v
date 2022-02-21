@@ -1,8 +1,11 @@
+
+       
 import System.IO ()
 import qualified Distribution.SPDX as PutStrLn
 
 main :: IO ()
 main = do
+    contents <- readFile "Test.txt" -- Läser in lagrad data från en textfil
     putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
     action <- getLine 
     if action == "q" then do 
@@ -36,8 +39,10 @@ main = do
 
     else do 
       putStrLn "Sorry that doesn't seen to be an option!"
-
-
+    
+    print contents -- Printar den data vi vill visa a.k.a tasks med hjälp av en processing funktion senare
+    
+    writeFile "Test.txt" (contents ++ "1") -- Uppdaterar textfilen med nya tasks om sådana finns med en hjälpfunktion som lagrar nya tasks i en lista 
 
 
 
