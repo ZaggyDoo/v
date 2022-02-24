@@ -6,7 +6,7 @@ import qualified Distribution.SPDX as PutStrLn
      -A non-empty TaskTree with label taskCategory has subtrees with a different label taskCategory and is given by Node taskCategory
      INVARIANT: For the moment unknown, looking up definition and doing research
   -}
-data TaskTree taskCategory = Void | TaskLeaf Tasklist | Node taskCategory [TaskTree taskCategory]
+data TaskTree taskCategory = Void | Node (TaskTree taskCategory Tasklist) taskCategory Tasklist (TaskTree taskCategory Tasklist)
 type Tasklist = [Task]
 type Task = (String, Bool)
 
@@ -53,7 +53,17 @@ main = do
 
 testTree = Node "All Tasks" [
   Node "Groceries" [
-  TaskLeaf [("Apples", False), ("Apples", False)]], 
+  TaskLeaf [("Apples", False), ("Oranges", False)]],
   Node "Important" [
   TaskLeaf [("Finish datatypes", False), ("Get to Diamond1",False)]]
   ]
+
+{- find t v
+ ...
+   RETURNS: True iff v is in t
+-}
+find :: (Ord a) => BSTree a -> a -> Bool
+find Void _ = False
+find (Node l y r) x | y == x = True
+                    | y < x  = find r x
+                    | y > x  = find l x
