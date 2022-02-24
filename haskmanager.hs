@@ -51,6 +51,8 @@ main = do
     
     writeFile "Test.txt" (contents ++ "1") -- Uppdaterar textfilen med nya tasks om sådana finns med en hjälpfunktion som lagrar nya tasks i en lista 
 
+
+{-
 testTree = Node "All Tasks" [
   Node "Groceries" [
   TaskLeaf [("Apples", False), ("Oranges", False)]],
@@ -58,6 +60,7 @@ testTree = Node "All Tasks" [
   TaskLeaf [("Finish datatypes", False), ("Get to Diamond1",False)]]
   ]
 
+<<<<<<< HEAD
 {- find t v
  ...
    RETURNS: True iff v is in t
@@ -67,3 +70,16 @@ find Void _ = False
 find (Node l y r) x | y == x = True
                     | y < x  = find r x
                     | y > x  = find l x
+=======
+allTasks :: IO ()
+allTasks = 
+    if important do
+      putStrLn "w"
+    else do return ()
+
+--(importance (1/0) , )
+printTasks :: (a,b,c,Str) -> IO ()
+printTasks (0,0,c,str) = putStrLn ("O " ++ Str) 
+printTasks (1,0,c,str) = putStrLn ("O " ++ Str) 
+-}
+>>>>>>> 815e6ed7ee6eec90910b1d97056e91f75b4ab54c
