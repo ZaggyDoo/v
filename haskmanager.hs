@@ -55,16 +55,19 @@ insert (Node l y list r) x list'
 
 -- Modified data-tree operations. Courtesy of Johannes Borgström and PKD-team
 
+
 main :: IO ()
 main = do
-    contents <- readFile "Test.txt" -- Läser in lagrad data från en textfil
-    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
+    contents <- readFile "Test.txt" -- Läser in lagrad data från en textfil               ? hur kan man nå lagrad data ?
+    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   🚩 - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
     action <- getLine
     if action == "q" then do
       putStrLn "Have a nice day!"
       return ()
     else if action == "1" then do
       putStrLn "You chose to go to All tasks."
+       
+       
       ---- always available press "..." to go to main menu
       --1 get list of tasks and print them with putStrLn...
       --2 prompt user to say which task is now finished with getLine
@@ -95,6 +98,9 @@ main = do
     print contents -- Printar den data vi vill visa a.k.a tasks med hjälp av en processing funktion senare
 
     writeFile "Test.txt" (contents ++ "1") -- Uppdaterar textfilen med nya tasks om sådana finns med en hjälpfunktion som lagrar nya tasks i en lista 
+
+getTasks :: Num a => a -> a
+getTasks x = x*x
 
 -- allTasks :: IO ()
 -- allTasks = 
