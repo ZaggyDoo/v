@@ -1,5 +1,7 @@
 test text file1111
-
-
-    testTree = Node (Node (Void) "Todo today" [(Drink milk, False)(Gym, False)(Meeting with CEO of Spotify at 09:00, False )] (Void)) "Shopping list" [(Milk, False)(Bread, False)(Cheese, True)] (Node (Void) "Invitation list for wedding" [(John Smith, False)(Liam Johnson, True)(Olivia Williams, False )] (Void))
-1
+testTree = Node (Node (Void) "Todo today" [(Drink milk, False)(Gym, False)(Meeting with CEO of Spotify at 09:00, False )] (Void)) "Shopping list" [(Milk, False)(Bread, False)(Cheese, True)] (Node (Void) "Invitation list for wedding" [(John Smith, False)(Liam Johnson, True)(Olivia Williams, False )] (Void))
+3
+4
+5
+6
+11

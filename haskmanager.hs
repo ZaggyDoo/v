@@ -23,6 +23,9 @@ type Task = (String, Bool)
  ...
    RETURNS: True iff v is in t
 -}
+findAll :: TaskTree a -> Tasklist
+findAll Void  = []
+findAll (Node l _ list r) = findAll l ++ list ++ findAll r
 
 exists :: (Ord a) => TaskTree a -> a -> Bool
 exists Void _ = False
@@ -31,7 +34,7 @@ exists (Node l y list r) x
                     | y < x  = exists r x
                     | y > x  = exists l x
 
-delete :: Eq a => TaskTree a -> a -> TaskTree a
+delete :: Eq a => TaskTree a -> a -> TaskTree a 
 delete Void _ = Void
 delete t@(Node l x list r) y
   | x == y    = deleteRoot t
@@ -59,14 +62,15 @@ insert (Node l y list r) x list'
 main :: IO ()
 main = do
     contents <- readFile "Test.txt" -- Läser in lagrad data från en textfil               ? hur kan man nå lagrad data ?
-    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   🚩 - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
+    
+    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
     action <- getLine
     if action == "q" then do
       putStrLn "Have a nice day!"
       return ()
     else if action == "1" then do
       putStrLn "You chose to go to All tasks."
-       
+      print ((lines contents)!!2)
        
       ---- always available press "..." to go to main menu
       --1 get list of tasks and print them with putStrLn...
@@ -95,12 +99,13 @@ main = do
     else do
       putStrLn "Sorry that doesn't seen to be an option!"
 
-    print contents -- Printar den data vi vill visa a.k.a tasks med hjälp av en processing funktion senare
+  
 
     writeFile "Test.txt" (contents ++ "1") -- Uppdaterar textfilen med nya tasks om sådana finns med en hjälpfunktion som lagrar nya tasks i en lista 
 
-getTasks :: Num a => a -> a
-getTasks x = x*x
+--getTasks :: Num a => a -> IO()
+--getTasks x = x*x
+
 
 -- allTasks :: IO ()
 -- allTasks = 
