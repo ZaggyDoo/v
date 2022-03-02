@@ -17,6 +17,7 @@ data TaskTree a = Void | Node (TaskTree a) a Tasklist (TaskTree a) deriving (Ord
 type Tasklist = [Task]
 type Task = (String, Bool)
 
+
 -- Modified data-tree operations. Courtesy of Johannes Borgström and PKD-team
 
 {- exists t v
@@ -61,16 +62,18 @@ insert (Node l y list r) x list'
 
 main :: IO ()
 main = do
-    contents <- readFile "Test.txt" -- Läser in lagrad data från en textfil               ? hur kan man nå lagrad data ?
+    contents <- (readFile) "Test.txt" -- Läser in lagrad data från en textfil               ? hur kan man nå lagrad data ?
     
-    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
+    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                  * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
     action <- getLine
     if action == "q" then do
       putStrLn "Have a nice day!"
       return ()
     else if action == "1" then do
       putStrLn "You chose to go to All tasks."
-      print ((lines contents)!!2)
+      putStrLn contents
+      
+
        
       ---- always available press "..." to go to main menu
       --1 get list of tasks and print them with putStrLn...
