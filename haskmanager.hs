@@ -98,24 +98,14 @@ findAll (Node l _ list r) = findAll l ++ list ++ findAll r
 main :: IO ()
 main = do
     contents <- (readFile) "Test.txt" -- Läser in lagrad data från en textfil               ? hur kan man nå lagrad data ?
-    
-<<<<<<< HEAD
-    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                  * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nq: quit"
-=======
-    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nQ: quit"
->>>>>>> c1a2004939e17d92bc3fa7ceb1dc0c6642377912
+    --let (undefined contents) = taskTree -- binder innehållet från textfilen till taskTree efter parsing funktionen
+    putStrLn  "\nWelcome to your HaskMonitor\n\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \nQ: quit                        X - done\n4: Task manager "
     action <- getLine
     if map toUpper action == "Q" then do
       putStrLn "Have a nice day!"
       return ()
     else if action == "1" then do
       putStrLn "You chose to go to All tasks."
-<<<<<<< HEAD
-      putStrLn contents
-      
-
-=======
->>>>>>> c1a2004939e17d92bc3fa7ceb1dc0c6642377912
        
       ---- always available press "..." to go to main menu
       --1 get list of tasks and print them with putStrLn...
@@ -138,26 +128,52 @@ main = do
     else if action == "3" then do
       putStrLn "You chose to go to List manager."
 
-    else if action == "3" then do
+    else if action == "4" then do
       putStrLn "You chose to go to Task manager."
-      main' Void -- bara ett exempelvärde inte riktigt klurat ut hur man kan behålla värdet på taskTree genom hela main
-    else do
-      putStrLn "Sorry that doesn't seen to be an option!"
+
+        
+      else do
+        putStrLn "Sorry that doesn't seem to be an option!"
+        main
 
   
 
 --    writeFile "Test.txt" (contents ++ "1") -- Uppdaterar textfilen med nya tasks om sådana finns med en hjälpfunktion som lagrar nya tasks i en lista 
 
+taskMenu :: IO ()
+taskMenu = do 
+              putStrLn " " 
+              putStrLn  "\n1: Add task                        \n2: Remove task                 \n3: Edit task status                \nAdd category            \nQ: quit to main menu"
+              action <- getLine
+              if action == "1" then do
+                addTask taskTree
+              else if action == "2" then do 
+                deleteTask taskTree
+              else do 
+                 putStrLn "Sorry that doesn't seem to be an option!"
+                 taskMenu
 
--- 02:57 kom denna som en tankeställare, som ett alternativ till att läsa in från en textfil kan man möjligtvis
--- behålla ett värde i en 'funktion och uppdatera det regelbundet vid nya tasks. Problemet blir ju att när man 
--- stänger programmet förloras allt men det kan väl vara ett alternativ, + att den i synnerhet funkar som en utav taskmanager funktionerna
--- nästa funktion är också synnerligen lätt och det är väldigt lik denna men att man vill ändra om en task är klar och då är det bara att
--- traversera genom trädet tills input matchar en task och sedan ändra på bool värdet i tuplen. och vidare gäller samma med att radera en task
--- gonatt gott folk
-
-main' taskTree = do
+                 
+addTask :: TaskTree String -> IO ()
+addTask taskTree = do
         putStrLn "What task would you like to add?"
+        newTask  <- getLine
+        putStrLn "What category do you want to add to?" 
+        newCat <- getLine
+        if map toUpper newCat == "YES" then do 
+          putStrLn "What would you like to name the category?"
+          categoryName <- getLine
+          let newTaskTree = insert taskTree categoryName [(newTask, False)]
+          mapM_ print(findAll newTaskTree)
+        else if map toUpper newCat == "NO" then do 
+          let newTaskTree = insert taskTree "" [(newTask, False)]
+          mapM_ print(findAll newTaskTree)
+        else do putStrLn "Sorry that doesn't seen to be an option! Try again!"
+
+deleteTask :: TaskTree String -> IO ()
+deleteTask taskTree = do
+        mapM_ print (findAll taskTree) 
+        putStrLn "What task would you like to delete?"
         newTask  <- getLine
         putStrLn "Would you like to add a category, yes or no?" 
         newCat <- getLine
@@ -170,8 +186,6 @@ main' taskTree = do
           let newTaskTree = insert taskTree "" [(newTask, False)]
           mapM_ print(findAll newTaskTree)
         else do putStrLn "Sorry that doesn't seen to be an option! Try again!"
-        main
-
 
 
 --getTasks :: Num a => a -> IO()
