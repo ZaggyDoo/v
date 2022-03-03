@@ -19,13 +19,14 @@ type Task = (String, Bool)
 
 -- Modified data-tree operations. Courtesy of Johannes Borgström and PKD-team
 
+findAll :: TaskTree a -> Tasklist
+findAll Void  = []
+findAll (Node l _ list r) = findAll l ++ list ++ findAll r
+
 {- exists t v
  ...
    RETURNS: True iff v is in t
 -}
-findAll :: TaskTree a -> Tasklist
-findAll Void  = []
-findAll (Node l _ list r) = findAll l ++ list ++ findAll r
 
 exists :: (Ord a) => TaskTree a -> a -> Bool
 exists Void _ = False
