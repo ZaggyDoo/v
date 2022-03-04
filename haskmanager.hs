@@ -143,16 +143,27 @@ main = do
 taskMenu :: IO ()
 taskMenu = do 
               putStrLn " " 
-              putStrLn  "\n1: Add task                        \n2: Remove task                 \n3: Edit task status                \nAdd category            \nQ: quit to main menu"
+              putStrLn  "\n1: Add task                        \n2: Remove task                 \n3: Edit task status                \n4:Add category            \nQ: quit to main menu"
               action <- getLine
               if action == "1" then do
                 addTask taskTree
               else if action == "2" then do 
                 deleteTask taskTree
+              else if action == "3" then do 
+                putStrLn "To select the task you have done, please write the number of the line counting from the top"
+                -----------------------------------------------------------------------------
+              else if action == "4" then do
+                addCategory taskTree
               else do 
                  putStrLn "Sorry that doesn't seem to be an option!"
                  taskMenu
 
+addCategory :: TaskTree String -> IO ()
+addCategory taskTree = do 
+          putStrLn "What would you like to name the category?"
+          categoryName <- getLine
+          let newTaskTree = insert taskTree categoryName [(newTaskTree, False)]
+          mapM_ print(findAll newTaskTree)
                  
 addTask :: TaskTree String -> IO ()
 addTask taskTree = do
