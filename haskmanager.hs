@@ -184,21 +184,6 @@ deleteTask taskTree = do
         else do putStrLn "Sorry that doesn't seen to be an option! Try again!"
 
 
---getTasks :: Num a => a -> IO()
---getTasks x = x*x
-
-
--- allTasks :: IO ()
--- allTasks = 
---     if important do
---       putStrLn "w"
---     else do return ()
-
--- --(importance (1/0) , )
--- printTasks :: (a,b,c,Str) -> IO ()
--- printTasks (0,0,c,str) = putStrLn ("O " ++ Str) 
--- printTasks (1,0,c,str) = putStrLn ("O " ++ Str)
-
 --------------------------------------------------------------------------------
 -- Test Cases/Material
 --------------------------------------------------------------------------------
