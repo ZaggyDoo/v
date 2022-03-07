@@ -183,7 +183,6 @@ main = do
    EXAMPLES: 
    SIDE-EFFECTS: A lot
 -}
-
 main' ::  TaskTree String -> IO ()
 main' taskTree = do
   putStrLn  "\nMenu        \n1: All tasks                        O - To-do\n2: View category                    X - Done\n3: Category manager                \n4: Task manager \nQ: Quit"
@@ -195,8 +194,8 @@ main' taskTree = do
       putStrLn "\nYou have no tasks"
       main' taskTree
     else do   
-    mapM_ print (taskStatus (allTasks taskTree))
-    main' taskTree
+      mapM_ print (taskStatus (allTasks taskTree))
+      main' taskTree
 
   else if action == "2" then do
     viewCategory taskTree
@@ -210,8 +209,15 @@ main' taskTree = do
     taskMenu taskTree
 
   else if map toUpper action == "Q" then do
-    putStrLn "Have a nice day!"
-    return ()
+    putStrLn "If you quit the program, your tasks will go lost. Are you sure you want to quit? Yes or No?"
+    action <- getLine 
+    if map toUpper action == "YES" then do 
+      return ()
+    else if map toUpper action == "NO" then do 
+      main' taskTree
+    else do
+      putStrLn "Sorry that doesn't seem to be an option!"
+      main' taskTree
   else do
       putStrLn "Sorry that doesn't seem to be an option!"
       main' taskTree
@@ -320,7 +326,7 @@ editCategory taskTree = do
 taskMenu :: TaskTree String -> IO ()
 taskMenu taskTree = do
   putStrLn " "
-  putStrLn  "\n1: Add task \n2: Remove task \n3: Edit task status \nQ: Quit to main menu"
+  putStrLn  "\n1: Add task \n2: Remove task \n3: Edit task \nQ: Quit to main menu"
   action <- getLine
   if action == "1" then do
     addTask taskTree
@@ -420,7 +426,11 @@ editTask taskTree = do
       taskMenu taskTree
 
 
--- Helper function that makes a task finished !!!! FIXA SÅ ATT TASKS PRINTAS MED SYMBOL och printa meddelande när det är klart
+{- finish
+   DESCRIPTION: The function that changes the status of a task to finished (True == "X")
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
 finish :: TaskTree String -> IO ()
 finish taskTree = do
   mapM_ print (allCategories taskTree)
@@ -438,7 +448,11 @@ finish taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
--- Helper function that undoes a task
+{- unfinish
+   DESCRIPTION: The function that changes the status of a task to unfinished (False == "O")
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
 unfinish :: TaskTree String -> IO ()
 unfinish taskTree = do
   mapM_ print (allCategories taskTree)
@@ -456,7 +470,11 @@ unfinish taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
--- Helper function that edits an unfinished task's name
+{-renameFinished
+   DESCRIPTION: The function that changes the name of a unfinished task
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
 renameUnfinished :: TaskTree String -> IO ()
 renameUnfinished taskTree = do
   mapM_ print (allCategories taskTree)
@@ -477,7 +495,12 @@ renameUnfinished taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
--- Helper function that edits a finished task's name if the user wishes to do so
+{-renameFinished
+   DESCRIPTION: The function that changes the name of a finished task
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
+
 renameFinished :: TaskTree String -> IO ()
 renameFinished taskTree = do
   mapM_ print (allCategories taskTree)
