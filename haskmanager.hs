@@ -289,6 +289,7 @@ taskMenu taskTree = do
   action <- getLine
   if action == "1" then do
     addTask taskTree
+    putStrLn "Task has been added"
   else if action == "2" then do
     deleteTask taskTree
     putStrLn "Task has been deleted"
@@ -305,9 +306,9 @@ taskMenu taskTree = do
    DESCRIPTION: The function that aids the user in creating a new task, where the user chooses the name and later adds it to a category of their choice
    EXAMPLES:
    SIDE-EFFECTS: A lot
-   VARIANT: The category must exist
+   PRE: The category must exist
 -}
-addTask :: TaskTree String -> IO (TaskTree String)
+addTask :: TaskTree String -> IO ()
 addTask taskTree = do
   putStrLn "What task would you like to add?"
   newTask  <- getLine
@@ -316,8 +317,9 @@ addTask taskTree = do
   if existCat taskTree whatCat then do 
     let category = find (== whatCat) (allCategories taskTree)
     let task = (newTask, False)
-    return $ insertTask taskTree category task -- PROBLEM MED DATATYP
-  else do putStrLn "Sorry that doesn't seen to be an option! Try again!"
+    return $ insertTask taskTree category task
+    putStrLn "Task has been added"
+  else do putStrLn "Sorry that doesn't seem to be an option! Try again!"
 
 
 {- deleteTask
@@ -325,7 +327,7 @@ addTask taskTree = do
    EXAMPLES:
    SIDE-EFFECTS: A lot
 -}
-deleteTask :: TaskTree String -> IO (TaskTree String)
+deleteTask :: TaskTree String -> IO ()
 deleteTask taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
@@ -337,20 +339,21 @@ deleteTask taskTree = do
   status <- getLine
   if map toUpper status == "YES" then do
     let taskk = (task, True)
-    return $ deleteTask' taskTree category taskk -- DATATYP FEL
+    return $ deleteTask' taskTree category taskk
+    putStrLn "Well done! Task removed!"
   else if map toUpper status == "NO" then do
     let taskk = (task, False)
-    return $ deleteTask' taskTree category taskk --DATATYP FEL
+    return $ deleteTask' taskTree category taskk
+    putStrLn "Okay, task will remain"
   else do  
     putStrLn "Sorry that doesn't seem to be an option!"
-    taskMenu taskTree
 
 {- editTask
    DESCRIPTION: The function that enables the user in changing a task's name or status, where the user chooses which task to change.
    EXAMPLES:
    SIDE-EFFECTS: A lot
 -}
-editTask :: TaskTree String -> IO (TaskTree String)
+editTask :: TaskTree String -> IO ()
 editTask taskTree = do
   putStrLn "Is the task you want to change finished? Yes or no?"
   status <- getLine
@@ -376,17 +379,18 @@ editTask taskTree = do
       putStrLn "Sorry that doesn't seem to be an option!"
  
 -- Helper function that makes a task finished
+finished :: TaskTree String -> IO ()
 finished taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
   category <- getLine
   mapM_ print (findList taskTree category)
   putStrLn "What task would you like to edit?"
-  task <- getLine  
-  task <- getLine 
+  task <- getLine   
   let taskk = (task, False)
-  return $ deleteTask' taskTree category taskk -- DATATYP FEL
-  return $ insertTask taskTree category (task, False) -- DATATYP FEL
+  return $ deleteTask' taskTree category taskk
+  return $ insertTask taskTree category (task, False) 
+  putStrLn "Well"
 
 -- Helper function that undoes a task
 unFinished :: TaskTree String -> IO ()
@@ -398,8 +402,8 @@ unFinished taskTree = do
   putStrLn "What task would you like to edit?"
   task <- getLine
   let taskk = (task, True)
-  return $ deleteTask' taskTree category taskk -- DATATYP FEL
-  return $ insertTask taskTree category (task, False) -- DATATYP FEL
+  return $ deleteTask' taskTree category taskk 
+  return $ insertTask taskTree category (task, False) 
   taskMenu taskTree
 
 -- Helper function that edits an unfinished task's name
@@ -415,13 +419,13 @@ renameUnfinished taskTree = do
   newName <- getLine
   let taskk = (task, False)
   let newNamee =(newName, False)
-  return $ deleteTask' taskTree category taskk -- DATATYP FEL
-  return $ insertTask taskTree category newNamee --DATATYP FEL
+  return $ deleteTask' taskTree category taskk 
+  return $ insertTask taskTree category newNamee 
   taskMenu taskTree
 
 
 -- Helper function that edits a finished task's name if the user wishes to do so
-renameFinished :: TaskTree String -> IO (TaskTree String)
+renameFinished :: TaskTree String -> IO ()
 renameFinished taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
@@ -433,9 +437,9 @@ renameFinished taskTree = do
   newName <- getLine
   let taskk = (task, True)
   let newNamee =(newName, True)
-  return $ deleteTask' taskTree category taskk --DATATYP FEL
-  return $ insertTask taskTree category newNamee --DATATYP FEL
-  taskMenu taskTree
+  return $ deleteTask' taskTree category taskk 
+  return $ insertTask taskTree category newNamee
+  putStrLn "Task has been renamed"
       
        
  
