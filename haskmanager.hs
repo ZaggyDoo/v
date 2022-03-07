@@ -1,17 +1,11 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> dcd7fc0e65b9da61e586c1734e0352fee122deeb
 import System.IO ()
 import Test.HUnit
 import Data.Char ( toUpper )
 import Data.List ( delete ) 
 
 -- The HaskMonitor
-<<<<<<< HEAD
+
 -- Project group 30: Agron Metaj, Pouria Karami, Zakarie Warsame
-=======
->>>>>>> dcd7fc0e65b9da61e586c1734e0352fee122deeb
 
 {-  A binary-tree with different task-categorys which are polymorphic labels
 - The empty binary search tree is given by Void.
@@ -559,22 +553,6 @@ renameFinished taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
-
-
---getTasks :: Num a => a -> IO()
---getTasks x = x*x
-
-
--- allTasks :: IO ()
--- allTasks = 
---     if important do
---       putStrLn "w"
---     else do return ()
-
--- --(importance (1/0) , )
--- printTasks :: (a,b,c,Str) -> IO ()
--- printTasks (0,0,c,str) = putStrLn ("O " ++ Str) 
--- printTasks (1,0,c,str) = putStrLn ("O " ++ Str)
 
 --------------------------------------------------------------------------------
 -- Test Cases/Material
