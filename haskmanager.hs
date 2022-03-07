@@ -1,9 +1,8 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-{-# LANGUAGE BlockArguments #-}
+
 import System.IO ()
 import Test.HUnit
-import Data.Char
-import Data.List
+import Data.Char ( toUpper )
+import Data.List ( delete ) 
 
 -- Project group 30: Agron Metaj, Pouria Karami, Zakarie Warsame
 -- The HaskMonitor
@@ -48,7 +47,7 @@ existCat (Node l y list r) x
 -}
 existTask :: (Ord a) => TaskTree a -> a  -> Task -> Bool
 existTask Void x y = False
-existTask (Node l y list r) category task 
+existTask (Node l y list r) category task
   | y == category = task `elem` list
   | y < category  = existTask r category task
   | y > category  = existTask l category task
@@ -99,7 +98,7 @@ deleteTask' (Node l y list r) category task
 
 insertCat :: (Ord a) => TaskTree a -> a -> TaskTree a
 insertCat Void y  = Node Void y [] Void
-insertCat (Node l y list r) x 
+insertCat (Node l y list r) x
   | y == x = Node l y list r
   | y < x  = Node l y list (insertCat r x)
   | y > x  = Node (insertCat l x) y list r
@@ -126,7 +125,7 @@ insertTask (Node l y list r) category task
 
 allCategories :: TaskTree a -> [a]
 allCategories Void = []
-allCategories (Node l x list r) = allCategories l ++ [x] ++ allCategories r 
+allCategories (Node l x list r) = allCategories l ++ [x] ++ allCategories r
 
 {-  allTasks t
     DESCRIPTION: A function that returns a list containing all the tasks from the tasktree.
@@ -148,10 +147,25 @@ allTasks (Node l _ list r) = allTasks l ++ list ++ allTasks r
 
 findList :: Ord a => TaskTree a -> a -> Tasklist
 findList Void _ = []
-findList (Node l y list r) category 
+findList (Node l y list r) category
   | y == category = list
   | y < category  = findList r category
-  | y > category  = findList l category 
+  | y > category  = findList l category
+
+{-  taskStatus l
+    DESCRIPTION: A function that returns the same tasklist but changes the second element in the tuple to a character to represent the status instead of using a bool
+    RETURNS: A Tasklist.
+    EXAMPLES: 
+    VARIANT: The amount of tasks in the list 
+-}
+
+taskStatus :: Tasklist -> [(String, String)]
+taskStatus [] = [("", "")]
+taskStatus [x] = if not (snd x) then [(fst x, "O")] else [(fst x, "X")]
+taskStatus (x:y:xs) = taskStatus [x] ++ taskStatus (y:xs)
+
+
+-- END OF PURE FUNCTIONS
 
 {- main
    DESCRIPTION: A function to greet the user and intitiate the real main function
@@ -159,12 +173,12 @@ findList (Node l y list r) category
    SIDE-EFFECTS: the main function and a string
 -}
 main :: IO()
-main = do 
+main = do
   let taskTree = Void
   putStrLn "\nWelcome to your Haskmonitor"
   main' taskTree
 
-{- main
+{- main'
    DESCRIPTION: The actual function that runs the program and prints a menu with options for the user
    EXAMPLES: 
    SIDE-EFFECTS: A lot
@@ -172,41 +186,62 @@ main = do
 
 main' ::  TaskTree String -> IO ()
 main' taskTree = do
-  contents <- readFile "Test.txt"                -- parsing funktionen kommer in här
-  putStrLn  "\nMenu                           \n1: All tasks                   * - important     \n2: Important only              O - todo     \n3: List manager                X - done\n4: Task manager \nQ: quit"
+  putStrLn  "\nMenu        \n1: All tasks                        O - To-do\n2: View category                    X - Done\n3: Category manager                \n4: Task manager \nQ: Quit"
   action <- getLine
   putStrLn ""
   if action == "1" then do
-    putStrLn "All tasks"
-    mapM_ print (allTasks taskTree)
+    putStrLn "All tasks:"
+    if null (allTasks taskTree) then do 
+      putStrLn "\nYou have no tasks"
+      main' taskTree
+    else do   
+    mapM_ print (taskStatus (allTasks taskTree))
     main' taskTree
 
   else if action == "2" then do
-    putStrLn "Important tasks"
+    viewCategory taskTree
 
   else if action == "3" then do
-    putStrLn "List manager"
-    listMenu taskTree
+    putStrLn "Category manager"
+    categoryMenu taskTree
 
   else if action == "4" then do
     putStrLn "Task manager"
     taskMenu taskTree
 
-  else if map toUpper action == "Q" then do 
+  else if map toUpper action == "Q" then do
     putStrLn "Have a nice day!"
     return ()
-    else do
+  else do
       putStrLn "Sorry that doesn't seem to be an option!"
       main' taskTree
 
 
-{- listMenu
+{- viewCategory
+   DESCRIPTION: The function that asks the user for a category and then prints the list of tasks in that category
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
+viewCategory :: TaskTree String -> IO()
+viewCategory taskTree = do
+  putStrLn "What category would you like to view?"
+  mapM_ print(allCategories taskTree)
+  categoryName <- getLine
+  if existCat taskTree categoryName then do
+    mapM_ print (taskStatus (findList taskTree categoryName))
+    main' taskTree
+  else do
+    putStrLn "Sorry that category doesn't seem to exist! Try again!"
+    main' taskTree
+
+
+{- categoryMenu
    DESCRIPTION: The function that is the submenu where the user is given options of different actions on categories
    EXAMPLES:
    SIDE-EFFECTS: A lot
 -}
-listMenu :: TaskTree String -> IO ()
-listMenu taskTree = do
+categoryMenu :: TaskTree String -> IO ()
+categoryMenu taskTree = do
   putStrLn  "\n1: Add category \n2: Remove category \n3: Edit category \nQ: Quit to main menu"
   action <- getLine
   if action == "1" then do
@@ -215,12 +250,12 @@ listMenu taskTree = do
     deleteCategory taskTree
   else if action == "3" then do
     --editCategory taskTree
-    main
+    main' taskTree
   else if map toUpper action == "Q" then do
     main' taskTree
   else do
       putStrLn "Sorry that doesn't seem to be an option!"
-      listMenu taskTree
+      categoryMenu taskTree
 
 {- addCategory 
    DESCRIPTION: The function that aids the user in creating a new category, where the user chooses the name
@@ -232,12 +267,12 @@ addCategory :: TaskTree String -> IO()
 addCategory taskTree = do
   putStrLn "What would you like to name the category?"
   categoryName <- getLine
-  if existCat taskTree categoryName then do 
+  if existCat taskTree categoryName then do
     putStrLn "That category already exists!"
-    listMenu taskTree 
-  else do 
-    putStrLn "Category added"   
-    listMenu $ insertCat taskTree categoryName        
+    categoryMenu taskTree
+  else do
+    putStrLn "Category added"
+    categoryMenu $ insertCat taskTree categoryName
 
 {- deleteCategory 
    DESCRIPTION: The function that aids the user in deleting a category, where the user chooses which one
@@ -250,7 +285,12 @@ deleteCategory taskTree = do
   mapM_ print(allCategories taskTree)
   putStrLn "What category would you like to delete?"
   categoryName <- getLine
-  listMenu $ deleteCat taskTree categoryName     
+  if existCat taskTree categoryName then do
+    putStrLn "Category deleted"
+    categoryMenu $ deleteCat taskTree categoryName
+  else do 
+    putStrLn "That category doesn't exist"
+    categoryMenu taskTree  
 
 {- editCategory 
    DESCRIPTION: The function that aids the user in renaming a category, where the user chooses which one
@@ -269,7 +309,7 @@ editCategory taskTree = do
                 deleteCat taskTree categoryName -- DATATYP FEL
                 insertCat taskTree newName
                 insertTask 
-                listMenu taskTree
+                categoryMenu taskTree
 -}
 
 {- taskMenu
@@ -280,7 +320,7 @@ editCategory taskTree = do
 taskMenu :: TaskTree String -> IO ()
 taskMenu taskTree = do
   putStrLn " "
-  putStrLn  "\n1: Add task                        \n2: Remove task                 \n3: Edit task status                            \nQ: Quit to main menu"
+  putStrLn  "\n1: Add task \n2: Remove task \n3: Edit task status \nQ: Quit to main menu"
   action <- getLine
   if action == "1" then do
     addTask taskTree
@@ -305,13 +345,14 @@ addTask taskTree = do
   putStrLn "What task would you like to add?"
   newTask  <- getLine
   putStrLn "What category would you like to add the task to?"
+  mapM_ print (allCategories taskTree)
   whatCat <- getLine
-  if existCat taskTree whatCat then do 
+  if existCat taskTree whatCat then do
     let task = (newTask, False)
     putStrLn "Task has been added"
     taskMenu $ insertTask taskTree whatCat task
-  else do 
-    putStrLn "Sorry that doesn't seem to be an option! Try again!"
+  else do
+    putStrLn "Sorry that category doesn't seem to exist! Try again!"
     taskMenu taskTree
 
 
@@ -325,22 +366,26 @@ deleteTask taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
   category <- getLine
-  mapM_ print (findList taskTree category)
-  putStrLn "What task would you like to delete?"
-  task <- getLine
-  putStrLn "Is the task finished? Yes or no"
-  status <- getLine
-  if map toUpper status == "YES" then do
-    let taskk = (task, True)
-    putStrLn "Well done! Task removed!"
-    taskMenu $ deleteTask' taskTree category taskk
-  else if map toUpper status == "NO" then do
-    putStrLn "Okay, task will remain"
+  if existCat taskTree category then do
+    mapM_ print (findList taskTree category)
+    putStrLn "What task would you like to delete?"
+    task <- getLine
+    putStrLn "Is the task finished? Yes or no?"
+    status <- getLine
+    if map toUpper status == "YES" then do
+      let taskk = (task, True)
+      putStrLn "Well done! Task removed!"
+      taskMenu $ deleteTask' taskTree category taskk
+    else if map toUpper status == "NO" then do
+      let taskk = (task, False)
+      putStrLn "Well done! Task removed!"
+      taskMenu $ deleteTask' taskTree category taskk
+    else do
+      putStrLn "Sorry that doesn't seem to be an option!"
+      taskMenu taskTree
+  else do 
+    putStrLn "That category doesn't seem to exist! Try again!"
     taskMenu taskTree
-  else do  
-    putStrLn "Sorry that doesn't seem to be an option!"
-    taskMenu taskTree
-
 {- editTask
    DESCRIPTION: The function that enables the user in changing a task's name or status, where the user chooses which task to change.
    EXAMPLES:
@@ -348,58 +393,68 @@ deleteTask taskTree = do
 -}
 editTask :: TaskTree String -> IO ()
 editTask taskTree = do
-  putStrLn "Is the task you want to change finished? answer with yes or no"
+  putStrLn "Is the task you want to change marked as finished? Answer with yes or no!"
   status <- getLine
   if map toUpper status == "YES" then do
-      putStrLn "Would you like to edit the status or name? answer with status or name"
-      choice <- getLine 
-      if map toUpper choice == "STATUS" then do 
-        finished taskTree
-      else if map toUpper choice == "NAME" then do 
+      putStrLn "Would you like to edit the status or name? Answer with status or name!"
+      choice <- getLine
+      if map toUpper choice == "STATUS" then do
+        unfinish taskTree
+      else if map toUpper choice == "NAME" then do
         renameFinished taskTree
-      else do 
+      else do
         putStrLn "Sorry that doesn't seem to be an option!"
         taskMenu taskTree
   else if map toUpper status == "NO" then do
       putStrLn "Would you like to edit the status or name"
-      choice <- getLine 
-      if map toUpper choice == "STATUS" then do 
-        unFinished taskTree
-      else if map toUpper choice == "NAME" then do 
-        renameUnfinished taskTree 
-      else do 
-          putStrLn "Sorry that doesn't seem to be an option!" 
+      choice <- getLine
+      if map toUpper choice == "STATUS" then do
+        finish taskTree
+      else if map toUpper choice == "NAME" then do
+        renameUnfinished taskTree
+      else do
+          putStrLn "Sorry that doesn't seem to be an option!"
           taskMenu taskTree
-  else do 
+  else do
       putStrLn "Sorry that doesn't seem to be an option!"
       taskMenu taskTree
- 
--- Helper function that makes a task finished
-finished :: TaskTree String -> IO ()
-finished taskTree = do
-  mapM_ print (allCategories taskTree)
-  putStrLn "What category is the task in?"
-  category <- getLine
-  mapM_ print (findList taskTree category)
-  putStrLn "What task would you like to edit?"
-  task <- getLine   
-  let taskk = (task, False)
-  let tree = deleteTask' taskTree category taskk
-  putStrLn "Well done! Task set to finished"
-  taskMenu $ insertTask tree category (task, True) 
 
--- Helper function that undoes a task
-unFinished :: TaskTree String -> IO ()
-unFinished taskTree = do
+
+-- Helper function that makes a task finished !!!! FIXA SÅ ATT TASKS PRINTAS MED SYMBOL och printa meddelande när det är klart
+finish :: TaskTree String -> IO ()
+finish taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
   category <- getLine
-  mapM_ print (findList taskTree category)
+  mapM_ print (taskStatus (findList taskTree category))
   putStrLn "What task would you like to edit?"
   task <- getLine
-  let taskk = (task, True)
-  let tree = deleteTask' taskTree category taskk 
-  taskMenu $ insertTask tree category (task, False) 
+  if existTask taskTree category (task, False) then do
+    let taskk = (task, False)
+    let tree = deleteTask' taskTree category taskk
+    putStrLn "Well done! Task set to finished."
+    taskMenu $ insertTask tree category (task, True)
+  else do 
+    putStrLn "Sorry that that task doesn't seem to exist! Try again!"
+    taskMenu taskTree
+
+-- Helper function that undoes a task
+unfinish :: TaskTree String -> IO ()
+unfinish taskTree = do
+  mapM_ print (allCategories taskTree)
+  putStrLn "What category is the task in?"
+  category <- getLine
+  mapM_ print (taskStatus(findList taskTree category))
+  putStrLn "What task would you like to edit?"
+  task <- getLine
+  if existTask taskTree category (task, True) then do
+    let taskk = (task, True)
+    let tree = deleteTask' taskTree category taskk
+    putStrLn "Task is now set to not finished."
+    taskMenu $ insertTask tree category (task, False)
+  else do
+    putStrLn "Sorry that that task doesn't seem to exist! Try again!"
+    taskMenu taskTree
 
 -- Helper function that edits an unfinished task's name
 renameUnfinished :: TaskTree String -> IO ()
@@ -407,16 +462,20 @@ renameUnfinished taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
   category <- getLine
-  mapM_ print (findList taskTree category)
+  mapM_ print (taskStatus(findList taskTree category))
   putStrLn "What task would you like to edit?"
-  task <- getLine 
-  putStrLn "What would you like to name the task?"
-  newName <- getLine
-  let taskk = (task, False)
-  let newNamee = (newName, False)
-  let tree = deleteTask' taskTree category taskk 
-  taskMenu $ insertTask tree category newNamee 
-
+  task <- getLine
+  if existTask taskTree category (task, False) then do
+    putStrLn "What would you like to name the task?"
+    newName <- getLine
+    let taskk = (task, False)
+    let newNamee = (newName, False)
+    let tree = deleteTask' taskTree category taskk
+    putStrLn "Task has been renamed."
+    taskMenu $ insertTask tree category newNamee
+  else do 
+    putStrLn "Sorry that that task doesn't seem to exist! Try again!"
+    taskMenu taskTree
 
 -- Helper function that edits a finished task's name if the user wishes to do so
 renameFinished :: TaskTree String -> IO ()
@@ -424,19 +483,23 @@ renameFinished taskTree = do
   mapM_ print (allCategories taskTree)
   putStrLn "What category is the task in?"
   category <- getLine
-  mapM_ print (findList taskTree category)
+  mapM_ print (taskStatus(findList taskTree category))
   putStrLn "What task would you like to edit?"
-  task <- getLine        
-  putStrLn "What would you like to name the task?"
-  newName <- getLine
-  let taskk = (task, True)
-  let newNamee = (newName, True)
-  let tree = deleteTask' taskTree category taskk 
-  putStrLn "Task has been renamed"
-  taskMenu $ insertTask tree category newNamee
-      
-       
- 
+  task <- getLine
+  if existTask taskTree category (task, True) then do
+    putStrLn "What would you like to name the task?"
+    newName <- getLine
+    let taskk = (task, True)
+    let newNamee = (newName, True)
+    let tree = deleteTask' taskTree category taskk
+    putStrLn "Task has been renamed."
+    taskMenu $ insertTask tree category newNamee
+  else do 
+    putStrLn "Sorry that that task doesn't seem to exist! Try again!"
+    taskMenu taskTree
+
+
+
 --getTasks :: Num a => a -> IO()
 --getTasks x = x*x
 
@@ -454,20 +517,6 @@ renameFinished taskTree = do
 
 --------------------------------------------------------------------------------
 -- Test Cases/Material
-{-
-test1 = TestCase $ assertEqual ""
-test2 = TestCase $ assertEqual
-test3 = TestCase $ assertEqual
-test4 = TestCase $ assertEqual
-test5 = TestCase $ assertEqual
-test6 = TestCase $ assertEqual
-test7 = TestCase $ assertEqual
-test8 = TestCase $ assertEqual
-test9 = TestCase $ assertEqual
-test10 = TestCase $ assertEqual
-test11 = TestCase $ assertEqual
-test12 = TestCase $ assertEqual
--}
 --------------------------------------------------------------------------------
 --testTree = undefined
 --runtests = runTestTT $ TestList []
