@@ -454,6 +454,20 @@ renameFinished taskTree= do
 
 --------------------------------------------------------------------------------
 -- Test Cases/Material
+{-
+test1 = TestCase $ assertEqual ""
+test2 = TestCase $ assertEqual
+test3 = TestCase $ assertEqual
+test4 = TestCase $ assertEqual
+test5 = TestCase $ assertEqual
+test6 = TestCase $ assertEqual
+test7 = TestCase $ assertEqual
+test8 = TestCase $ assertEqual
+test9 = TestCase $ assertEqual
+test10 = TestCase $ assertEqual
+test11 = TestCase $ assertEqual
+test12 = TestCase $ assertEqual
+-}
 --------------------------------------------------------------------------------
 --testTree = undefined
 --runtests = runTestTT $ TestList []
