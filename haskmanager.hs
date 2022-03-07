@@ -195,8 +195,8 @@ main' taskTree = do
       putStrLn "\nYou have no tasks"
       main' taskTree
     else do   
-    mapM_ print (taskStatus (allTasks taskTree))
-    main' taskTree
+      mapM_ print (taskStatus (allTasks taskTree))
+      main' taskTree
 
   else if action == "2" then do
     viewCategory taskTree
