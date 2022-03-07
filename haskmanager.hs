@@ -291,8 +291,7 @@ categoryMenu taskTree = do
   else if action == "2" then do
     deleteCategory taskTree
   else if action == "3" then do
-    --editCategory taskTree
-    main' taskTree
+    editCategory taskTree
   else if map toUpper action == "Q" then do
     main' taskTree
   else do
