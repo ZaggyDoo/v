@@ -21,7 +21,7 @@ data TaskTree a = Void | Node (TaskTree a) a Tasklist (TaskTree a) deriving (Ord
 type Tasklist = [Task]
 type Task = (String, Bool)
 
--- The majority of 
+-- Some of these functions are derived from Johannes Borgström and the PKD-teams functions for binary search trees
 
 {-  existCat t a
     DESCRIPTION: A function that checks if a category exists in a tree
