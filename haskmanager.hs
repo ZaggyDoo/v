@@ -7,7 +7,6 @@ import Data.List ( delete )
 -- Project group 30: Agron Metaj, Pouria Karami, Zakarie Warsame
 -- The HaskMonitor
 
-
 {-  A binary-tree with different task-categorys which are polymorphic labels
 - The empty binary search tree is given by Void.
 - A non-empty binary search tree with label x,
@@ -22,6 +21,7 @@ data TaskTree a = Void | Node (TaskTree a) a Tasklist (TaskTree a) deriving (Ord
 type Tasklist = [Task]
 type Task = (String, Bool)
 
+-- The majority of 
 
 {-  existCat t a
     DESCRIPTION: A function that checks if a category exists in a tree
@@ -115,6 +115,21 @@ insertTask (Node l y list r) category task
   | y == category = Node l y (task : list) r
   | y < category  = Node l y list (insertTask r category task)
   | y > category  = Node (insertTask l category task) y list r
+
+{-  renameCat t a b
+    DESCRIPTION: A function that renames a node with the label a to b 
+    RETURNS: A new tree with the updated node and its empty list
+    EXAMPLES: 
+    VARIANT: The amount of nodes in the tree.
+-}
+
+renameCat :: (Ord a) => TaskTree a -> a  -> a -> TaskTree a
+renameCat Void y z = Void
+renameCat (Node l y list r) x z
+  | y == x = Node l z list r
+  | y < x  = Node l y list (renameCat r x z)
+  | y > x  = Node (renameCat l x z) y list r
+
 
 {-  allCategories t
     DESCRIPTION: A function that returns a list containing all the categories from a tasktree
@@ -299,24 +314,20 @@ deleteCategory taskTree = do
     categoryMenu taskTree  
 
 {- editCategory 
-   DESCRIPTION: The function that aids the user in renaming a category, where the user chooses which one
+   DESCRIPTION: The function that aids the user in renaming a category, where the user chooses which category
    EXAMPLES:
    SIDE-EFFECTS: A lot
 -}
---EJ KLAR 
-{-editCategory :: TaskTree String -> IO()
+
+editCategory :: TaskTree String -> IO()
 editCategory taskTree = do 
-                mapM_ print(allCategories taskTree)
-                putStrLn "What category would you like to edit"
-                categoryName <- getLine
-                putStrLn "What would you like to rename it"
-                newName <- getLine
-                let list = findList categoryName 
-                deleteCat taskTree categoryName -- DATATYP FEL
-                insertCat taskTree newName
-                insertTask 
-                categoryMenu taskTree
--}
+  mapM_ print(allCategories taskTree)
+  putStrLn "What category would you like to edit"
+  categoryName <- getLine
+  putStrLn "What would you like to rename it"
+  newName <- getLine
+  categoryMenu $ renameCat taskTree categoryName newName
+
 
 {- taskMenu
    DESCRIPTION: The function that is the submenu where the user is given options of different actions on tasks
