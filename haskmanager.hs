@@ -21,7 +21,7 @@ data TaskTree a = Void | Node (TaskTree a) a Tasklist (TaskTree a) deriving (Ord
 type Tasklist = [Task]
 type Task = (String, Bool)
 
--- The majority of 
+-- Some of these functions are modified data-tree operations. Courtesy of Johannes Borgström and PKD-team
 
 {-  existCat tree category
     DESCRIPTION: A function that checks if a category exists in a tree
@@ -122,10 +122,11 @@ insertTask (Node l y list r) category task
 {-  renameCat t a b
     DESCRIPTION: A function that renames a node with the label a to b 
     RETURNS: A new tree with the updated node and its empty list
-    EXAMPLES: 
+    EXAMPLES: renameCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Home" "Chores" ==
+              Node Void "Chores" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)
 -}
--- VARIANT: height t
 renameCat :: (Ord a) => TaskTree a -> a  -> a -> TaskTree a
+-- VARIANT: height t
 renameCat Void y z = Void
 renameCat (Node l y list r) x z
   | y == x = Node l z list r
@@ -175,11 +176,10 @@ findList (Node l y list r) category
 {-  taskStatus l
     DESCRIPTION: A function that returns the same tasklist but changes the second element in the tuple to a character to represent the status instead of using a bool
     RETURNS: A Tasklist.
-    EXAMPLES: 
-    VARIANT: The amount of tasks in the list 
+    EXAMPLES: taskStatus [("A",False), ("B", True)] == [("A","O"),("B","X")]
 -}
-
 taskStatus :: Tasklist -> [(String, String)]
+-- VARIANT: length of list
 taskStatus [] = [("", "")]
 taskStatus [x] = if not (snd x) then [(fst x, "O")] else [(fst x, "X")]
 taskStatus (x:y:xs) = taskStatus [x] ++ taskStatus (y:xs)
@@ -192,8 +192,7 @@ taskStatus (x:y:xs) = taskStatus [x] ++ taskStatus (y:xs)
 --------------------------------------------------------------------------------
 {- main
    DESCRIPTION: A function to greet the user and intitiate the real main function
-   EXAMPLES: 
-   SIDE-EFFECTS: the main function and a string
+   SIDE-EFFECTS: Prints text to terminal
 -}
 main :: IO()
 main = do
@@ -203,8 +202,7 @@ main = do
 
 {- main'
    DESCRIPTION: The actual function that runs the program and prints a menu with options for the user
-   EXAMPLES: 
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints text to terminal and receives user input.
 -}
 main' ::  TaskTree String -> IO ()
 main' taskTree = do
@@ -232,7 +230,7 @@ main' taskTree = do
     taskMenu taskTree
 
   else if map toUpper action == "Q" then do
-    putStrLn "If you quit the program, your tasks will go lost. Are you sure you want to quit? Yes or No?"
+    putStrLn "If you quit the program, your tasks will go lost.\n Are you sure you want to quit? Yes or No?"
     action <- getLine 
     if map toUpper action == "YES" then do 
       return ()
@@ -255,8 +253,7 @@ main' taskTree = do
 
 {- viewCategory
    DESCRIPTION: The function that asks the user for a category and then prints the list of tasks in that category
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 viewCategory :: TaskTree String -> IO()
 viewCategory taskTree = do
@@ -273,8 +270,7 @@ viewCategory taskTree = do
 
 {- categoryMenu
    DESCRIPTION: The function that is the submenu where the user is given options of different actions on categories
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 categoryMenu :: TaskTree String -> IO ()
 categoryMenu taskTree = do
@@ -295,7 +291,7 @@ categoryMenu taskTree = do
 {- addCategory 
    DESCRIPTION: The function that aids the user in creating a new category, where the user chooses the name
    EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 
 addCategory :: TaskTree String -> IO()
@@ -311,8 +307,7 @@ addCategory taskTree = do
 
 {- deleteCategory 
    DESCRIPTION: The function that aids the user in deleting a category, where the user chooses which one
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 
 deleteCategory :: TaskTree String -> IO()
@@ -329,8 +324,7 @@ deleteCategory taskTree = do
 
 {- editCategory 
    DESCRIPTION: The function that aids the user in renaming a category, where the user chooses which category
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 
 editCategory :: TaskTree String -> IO()
@@ -352,8 +346,7 @@ editCategory taskTree = do
 --------------------------------------------------------------------------------
 {- taskMenu
    DESCRIPTION: The function that is the submenu where the user is given options of different actions on tasks
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 taskMenu :: TaskTree String -> IO ()
 taskMenu taskTree = do
@@ -374,9 +367,7 @@ taskMenu taskTree = do
 
 {- addTask 
    DESCRIPTION: The function that aids the user in creating a new task, where the user chooses the name and later adds it to a category of their choice
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
-   PRE: The category must exist
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 addTask :: TaskTree String -> IO ()
 addTask taskTree = do
@@ -396,8 +387,7 @@ addTask taskTree = do
 
 {- deleteTask
    DESCRIPTION: The function that enables the user in deleting a task.
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 deleteTask :: TaskTree String -> IO ()
 deleteTask taskTree = do
@@ -424,10 +414,10 @@ deleteTask taskTree = do
   else do 
     putStrLn "That category doesn't seem to exist! Try again!"
     taskMenu taskTree
+
 {- editTask
    DESCRIPTION: The function that enables the user in changing a task's name or status, where the user chooses which task to change.
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 editTask :: TaskTree String -> IO ()
 editTask taskTree = do
@@ -460,8 +450,7 @@ editTask taskTree = do
 
 {- finish
    DESCRIPTION: The function that changes the status of a task to finished (True == "X")
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 finish :: TaskTree String -> IO ()
 finish taskTree = do
@@ -482,8 +471,7 @@ finish taskTree = do
 
 {- unfinish
    DESCRIPTION: The function that changes the status of a task to unfinished (False == "O")
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 unfinish :: TaskTree String -> IO ()
 unfinish taskTree = do
@@ -504,8 +492,7 @@ unfinish taskTree = do
 
 {-renameFinished
    DESCRIPTION: The function that changes the name of a unfinished task
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 renameUnfinished :: TaskTree String -> IO ()
 renameUnfinished taskTree = do
@@ -529,8 +516,7 @@ renameUnfinished taskTree = do
 
 {-renameFinished
    DESCRIPTION: The function that changes the name of a finished task
-   EXAMPLES:
-   SIDE-EFFECTS: A lot
+   SIDE-EFFECTS: Prints to terminal and asks for input
 -}
 
 renameFinished :: TaskTree String -> IO ()
