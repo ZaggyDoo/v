@@ -1,12 +1,11 @@
-
 import System.IO ()
 import Test.HUnit
 import Data.Char ( toUpper )
 import Data.List ( delete ) 
 
--- Project group 30: Agron Metaj, Pouria Karami, Zakarie Warsame
 -- The HaskMonitor
 
+-- Project group 30: Agron Metaj, Pouria Karami, Zakarie Warsame
 
 {-  A binary-tree with different task-categorys which are polymorphic labels
 - The empty binary search tree is given by Void.
@@ -22,28 +21,30 @@ data TaskTree a = Void | Node (TaskTree a) a Tasklist (TaskTree a) deriving (Ord
 type Tasklist = [Task]
 type Task = (String, Bool)
 
+-- The majority of 
 
-{-  existCat t a
+{-  existCat tree category
     DESCRIPTION: A function that checks if a category exists in a tree
     RETURNS: A boolean value representing if the category exists, true or false.
     EXAMPLES: existCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ==
               True
               existCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "School" ==
               False
-    VARIANT: The amount of nodes in the tree respectively their tasklists.
 -}
 existCat :: (Ord a) => TaskTree a -> a -> Bool
+-- VARIANT: height tree
 existCat Void _ = False
 existCat (Node l y list r) x
   | y == x = True
   | y < x  = existCat r x
   | y > x  = existCat l x
 
-{-  existTask t a b
+{-  existTask tree category task
     DESCRIPTION: A function that checks if a task exists in a given category in the tree
     RETURNS: A boolean value representing if the task exists, true or false.
-    EXAMPLES: 
-    VARIANT: The amount of nodes in the tree respectively their tasklists.
+    EXAMPLES: existTask (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ("Deadline", False) == True
+              existTask (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "School" ("Dance with Apurva",False) == False
+              existTask Void "School" ("Dance with Apurva",False)
 -}
 existTask :: (Ord a) => TaskTree a -> a  -> Task -> Bool
 existTask Void x y = False
@@ -53,17 +54,17 @@ existTask (Node l y list r) category task
   | y > category  = existTask l category task
 
 
-{-  deleteCat t a
+{-  deleteCat tree category
     DESCRIPTION: A function that deletes the node and its list 
     RETURNS: A new tree without the node
     EXAMPLES: deleteCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work"   ==
               Node Void "Home" [("Clean",False),("Cook",True)] Void
               deleteCat (Node Void "Home" [("Clean",False),("Cook",True)] Void)  "Home" ==
               Void
-    VARIANT: The amount of nodes in the tree.
 -}
 
 deleteCat :: Eq a => TaskTree a -> a -> TaskTree a
+-- VARIANT: height tree
 deleteCat Void _ = Void
 deleteCat t@(Node l x list r) category
   | x == category    = deleteRoot t
@@ -74,78 +75,97 @@ deleteCat t@(Node l x list r) category
     deleteRoot (Node t x list Void)               = deleteRoot (Node Void x list t)
     deleteRoot (Node l _ _ r@(Node rl x list rr)) = Node l x list $ deleteRoot r
 
-{-  deleteTask t a b
+{-  deleteTask t category task
     DESCRIPTION: A function that deletes an element from the list binded to its node.
-    RETURNS: A new tree without the element in the list at that node
-    EXAMPLES: 
-    VARIANT: The amount of nodes in the tree.
+    RETURNS: A new tree from t without task in category's accompanying list at that
+    EXAMPLES: deleteTask' Void "" ("Yes", False) == Void
+              deleteTask' (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ("Deadline",False) == Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [] Void)
 -}
 
 deleteTask' :: (Eq a, Ord a) => TaskTree a -> a -> Task -> TaskTree a
+-- VARIANT: height tree
 deleteTask' Void _ _ = Void
 deleteTask' (Node l y list r) category task
   | y == category = Node l y (delete task list) r
   | y < category  = Node l y list (deleteTask' r category task)
   | y > category  = Node (deleteTask' l category task) y list r
 
-
-{-  insertCat t a
+{-  insertCat tree category
     DESCRIPTION: A function that inserts a node with the label a and an empty list 
     RETURNS: A new tree with the updated node and its empty list
-    EXAMPLES: 
-    VARIANT: The amount of nodes in the tree.
+    EXAMPLES: insertCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Groceries" == Node (Node Void "Groceries" [] Void) "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)
+              insertCat Void "Groceries" == Node Void "Groceries" [] Void
 -}
 
 insertCat :: (Ord a) => TaskTree a -> a -> TaskTree a
+-- VARIANT: height tree
 insertCat Void y  = Node Void y [] Void
 insertCat (Node l y list r) x
   | y == x = Node l y list r
   | y < x  = Node l y list (insertCat r x)
   | y > x  = Node (insertCat l x) y list r
 
-{-  insertTask t a b
+{-  insertTask t category task
     DESCRIPTION: A function that finds a category and inserts a task in the corresponding node's list 
     RETURNS: A new tree with the task inserted in to its tasklist
-    EXAMPLES: 
-    VARIANT: The amount of nodes in the tree.
+    EXAMPLES: insertTask (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ("Send report",False) == Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Send report",False),("Deadline",False)] Void)
+              insertTask Void "Work" ("Send report",False) == Void
 -}
 insertTask :: (Eq a, Ord a) => TaskTree a -> a -> Task -> TaskTree a
+-- VARIANT: height t
 insertTask Void category task = Void
 insertTask (Node l y list r) category task
   | y == category = Node l y (task : list) r
   | y < category  = Node l y list (insertTask r category task)
   | y > category  = Node (insertTask l category task) y list r
 
+{-  renameCat t a b
+    DESCRIPTION: A function that renames a node with the label a to b 
+    RETURNS: A new tree with the updated node and its empty list
+    EXAMPLES: 
+-}
+-- VARIANT: height t
+renameCat :: (Ord a) => TaskTree a -> a  -> a -> TaskTree a
+renameCat Void y z = Void
+renameCat (Node l y list r) x z
+  | y == x = Node l z list r
+  | y < x  = Node l y list (renameCat r x z)
+  | y > x  = Node (renameCat l x z) y list r
+
+
 {-  allCategories t
     DESCRIPTION: A function that returns a list containing all the categories from a tasktree
-    RETURNS: A list of the nodes in t
-    EXAMPLES: 
-    VARIANT: The amount of nodes in the tree 
+    RETURNS: A list of the nodes in tree
+    EXAMPLES: allCategories (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) == ["Home","Work"]
+              allCategories Void == []
 -}
 
 allCategories :: TaskTree a -> [a]
+-- VARIANT: height tree
 allCategories Void = []
 allCategories (Node l x list r) = allCategories l ++ [x] ++ allCategories r
 
-{-  allTasks t
+{-  allTasks tree
     DESCRIPTION: A function that returns a list containing all the tasks from the tasktree.
     RETURNS: A Tasklist.
     EXAMPLES: allTasks (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) ==
               [("Clean",False),("Cook",True),("Deadline",False)]
-    VARIANT: The amount of nodes in the tree 
+              allTasks Void == []
 -}
 allTasks :: TaskTree a -> Tasklist
+-- VARIANT: height tree
 allTasks Void  = []
 allTasks (Node l _ list r) = allTasks l ++ list ++ allTasks r
 
-{-  findList t a
+{-  findList tree category
     DESCRIPTION: A function that returns the category's list
-    RETURNS: A Tasklist.
-    EXAMPLES: 
-    VARIANT: The amount of nodes in the tree 
+    RETURNS: The list accompanying category
+    EXAMPLES: findList (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" == [("Deadline",False)]
+              findList Void "Work" == []
 -}
 
 findList :: Ord a => TaskTree a -> a -> Tasklist
+-- VARIANT: height t
 findList Void _ = []
 findList (Node l y list r) category
   | y == category = list
@@ -167,6 +187,9 @@ taskStatus (x:y:xs) = taskStatus [x] ++ taskStatus (y:xs)
 
 -- END OF PURE FUNCTIONS
 
+--------------------------------------------------------------------------------
+-- Main menu
+--------------------------------------------------------------------------------
 {- main
    DESCRIPTION: A function to greet the user and intitiate the real main function
    EXAMPLES: 
@@ -183,7 +206,6 @@ main = do
    EXAMPLES: 
    SIDE-EFFECTS: A lot
 -}
-
 main' ::  TaskTree String -> IO ()
 main' taskTree = do
   putStrLn  "\nMenu        \n1: All tasks                        O - To-do\n2: View category                    X - Done\n3: Category manager                \n4: Task manager \nQ: Quit"
@@ -210,12 +232,26 @@ main' taskTree = do
     taskMenu taskTree
 
   else if map toUpper action == "Q" then do
-    putStrLn "Have a nice day!"
-    return ()
+    putStrLn "If you quit the program, your tasks will go lost. Are you sure you want to quit? Yes or No?"
+    action <- getLine 
+    if map toUpper action == "YES" then do 
+      return ()
+    else if map toUpper action == "NO" then do 
+      main' taskTree
+    else do
+      putStrLn "Sorry that doesn't seem to be an option!"
+      main' taskTree
   else do
       putStrLn "Sorry that doesn't seem to be an option!"
       main' taskTree
 
+--------------------------------------------------------------------------------
+-- Main menu end
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- Category menu and functions
+--------------------------------------------------------------------------------
 
 {- viewCategory
    DESCRIPTION: The function that asks the user for a category and then prints the list of tasks in that category
@@ -249,8 +285,7 @@ categoryMenu taskTree = do
   else if action == "2" then do
     deleteCategory taskTree
   else if action == "3" then do
-    --editCategory taskTree
-    main' taskTree
+    editCategory taskTree
   else if map toUpper action == "Q" then do
     main' taskTree
   else do
@@ -293,25 +328,28 @@ deleteCategory taskTree = do
     categoryMenu taskTree  
 
 {- editCategory 
-   DESCRIPTION: The function that aids the user in renaming a category, where the user chooses which one
+   DESCRIPTION: The function that aids the user in renaming a category, where the user chooses which category
    EXAMPLES:
    SIDE-EFFECTS: A lot
 -}
---EJ KLAR 
-{-editCategory :: TaskTree String -> IO()
-editCategory taskTree = do 
-                mapM_ print(allCategories taskTree)
-                putStrLn "What category would you like to edit"
-                categoryName <- getLine
-                putStrLn "What would you like to rename it"
-                newName <- getLine
-                let list = findList categoryName 
-                deleteCat taskTree categoryName -- DATATYP FEL
-                insertCat taskTree newName
-                insertTask 
-                categoryMenu taskTree
--}
 
+editCategory :: TaskTree String -> IO()
+editCategory taskTree = do 
+  mapM_ print(allCategories taskTree)
+  putStrLn "What category would you like to edit"
+  categoryName <- getLine
+  putStrLn "What would you like to rename it"
+  newName <- getLine
+  categoryMenu $ renameCat taskTree categoryName newName
+
+
+--------------------------------------------------------------------------------
+-- Category menu and functions end
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- Task menu and functions
+--------------------------------------------------------------------------------
 {- taskMenu
    DESCRIPTION: The function that is the submenu where the user is given options of different actions on tasks
    EXAMPLES:
@@ -320,7 +358,7 @@ editCategory taskTree = do
 taskMenu :: TaskTree String -> IO ()
 taskMenu taskTree = do
   putStrLn " "
-  putStrLn  "\n1: Add task \n2: Remove task \n3: Edit task status \nQ: Quit to main menu"
+  putStrLn  "\n1: Add task \n2: Remove task \n3: Edit task \nQ: Quit to main menu"
   action <- getLine
   if action == "1" then do
     addTask taskTree
@@ -420,7 +458,11 @@ editTask taskTree = do
       taskMenu taskTree
 
 
--- Helper function that makes a task finished !!!! FIXA SÅ ATT TASKS PRINTAS MED SYMBOL och printa meddelande när det är klart
+{- finish
+   DESCRIPTION: The function that changes the status of a task to finished (True == "X")
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
 finish :: TaskTree String -> IO ()
 finish taskTree = do
   mapM_ print (allCategories taskTree)
@@ -438,7 +480,11 @@ finish taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
--- Helper function that undoes a task
+{- unfinish
+   DESCRIPTION: The function that changes the status of a task to unfinished (False == "O")
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
 unfinish :: TaskTree String -> IO ()
 unfinish taskTree = do
   mapM_ print (allCategories taskTree)
@@ -456,7 +502,11 @@ unfinish taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
--- Helper function that edits an unfinished task's name
+{-renameFinished
+   DESCRIPTION: The function that changes the name of a unfinished task
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
 renameUnfinished :: TaskTree String -> IO ()
 renameUnfinished taskTree = do
   mapM_ print (allCategories taskTree)
@@ -477,7 +527,12 @@ renameUnfinished taskTree = do
     putStrLn "Sorry that that task doesn't seem to exist! Try again!"
     taskMenu taskTree
 
--- Helper function that edits a finished task's name if the user wishes to do so
+{-renameFinished
+   DESCRIPTION: The function that changes the name of a finished task
+   EXAMPLES:
+   SIDE-EFFECTS: A lot
+-}
+
 renameFinished :: TaskTree String -> IO ()
 renameFinished taskTree = do
   mapM_ print (allCategories taskTree)
@@ -499,24 +554,36 @@ renameFinished taskTree = do
     taskMenu taskTree
 
 
-
---getTasks :: Num a => a -> IO()
---getTasks x = x*x
-
-
--- allTasks :: IO ()
--- allTasks = 
---     if important do
---       putStrLn "w"
---     else do return ()
-
--- --(importance (1/0) , )
--- printTasks :: (a,b,c,Str) -> IO ()
--- printTasks (0,0,c,str) = putStrLn ("O " ++ Str) 
--- printTasks (1,0,c,str) = putStrLn ("O " ++ Str)
-
 --------------------------------------------------------------------------------
 -- Test Cases/Material
 --------------------------------------------------------------------------------
---testTree = undefined
---runtests = runTestTT $ TestList []
+-- existCat
+test1 = TestCase $ assertEqual "Category does exist" True $ existCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work"
+test2 = TestCase $ assertEqual "Category doesn't exist" False $ existCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "School"
+test3 = TestCase $ assertEqual "Empty tree" False $ existCat Void "School"
+-- existTask
+test4 = TestCase $ assertEqual "Empty tree" False $ existTask Void "School" ("Dance with Apurva",False)
+test5 = TestCase $ assertEqual "Task doesn't exist" False $ existTask (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "School" ("Dance with Apurva",False)
+test6 = TestCase $ assertEqual "Task does exist" True $ existTask (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ("Deadline", False)
+-- deleteCat
+test7 = TestCase $ assertEqual "Delete Root" Void $ deleteCat (Node Void "Home" [("Clean",False),("Cook",True)] Void)  "Home"
+test8 = TestCase $ assertEqual "Empty tree" Void $ deleteCat Void  "Home"
+test9 = TestCase $ assertEqual "Simple removal" (Node Void "Home" [("Clean",False),("Cook",True)] Void) $ deleteCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work"
+-- deleteTask'
+test10 = TestCase $ assertEqual "Empty tree" Void $ deleteTask' Void "Groceries" ("Yes", False)
+test11 = TestCase $ assertEqual "Remove a task" (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [] Void)) $ deleteTask' (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ("Deadline",False)
+-- insertCat
+test12 = TestCase $ assertEqual "Simple insert category" (Node (Node Void "Groceries" [] Void) "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) $ insertCat (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Groceries"
+test13 = TestCase $ assertEqual "Insert to empty tree" (Node Void "Groceries" [] Void) $ insertCat Void "Groceries"
+-- insertTask
+test14 = TestCase $ assertEqual "Simple insert task" (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Send report",False),("Deadline",False)] Void)) $ insertTask (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work" ("Send report",False)
+test15 = TestCase $ assertEqual "Empty tree" Void $ insertTask Void "Work" ("Send report",False)
+--allCategories
+test16 = TestCase $ assertEqual "Non-empty tree" ["Home","Work"] $ allCategories (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void))
+test17 = TestCase $ assertEqual "Empty tree" "" $ allCategories Void 
+--allTasks
+test18 = TestCase $ assertEqual "Non-empty tree" [("Clean",False),("Cook",True),("Deadline",False)] $ allTasks (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void))
+--findList
+test19 = TestCase $ assertEqual "Finding a list" [("Deadline",False)] $ findList (Node Void "Home" [("Clean",False),("Cook",True)] (Node Void "Work" [("Deadline",False)] Void)) "Work"
+
+runtests = runTestTT $ TestList [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15, test16, test17, test18, test19]
